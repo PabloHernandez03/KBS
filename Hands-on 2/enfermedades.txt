@@ -1,0 +1,21 @@
+(assert (enfermedad dengue erupcionCutanea respiracionAcelerada fiebreAlta dolorMuscular))
+(assert (enfermedad sida fatiga lesionesCutaneas fiebre glandulasInflamadas))
+(assert (enfermedad diabetes sediento fatiga visiónBorrrosa aumentoHambre))
+(assert (enfermedad covid fatiga tosSeca fiebre perdidaDelOlfato))
+(assert (enfermedad tuberculosis tosPersistente fatiga fiebre perdidaDePeso))
+(assert (enfermedad asma dificultadRespiratoria sibilancias tos opresiónPecho))
+(defrule consultarEnfermedades
+    (enfermedad ?nombre ?signo1 ?signo2 ?sintoma1 ?sintoma2)
+    =>
+    (printout t "Enfermedad -> "?nombre crlf)
+    (printout t "  Signos -> " ?signo1 " y " ?signo2 crlf)
+    (printout t "  Sintomas -> " ?sintoma1 " y " ?sintoma2 crlf)
+    (printout t "---------------------------------------------------" crlf)
+)
+(defrule eliminarEnfermedad
+    ?f <- (enfermedad ?nombre ?signo1 ?signo2 ?sintoma1 ?sintoma2)
+    =>
+    (printout t "ID: " (fact-index ?f) crlf)
+    (printout t "Hecho eliminado..." crlf)
+    (printout t "--------------------" crlf)
+    (retract (fact-index ?f)))
