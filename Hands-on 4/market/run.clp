@@ -1,5 +1,0 @@
-(load "C:/Users/Pablo/OneDrive - Universidad de Guadalajara/Documents/CUCEI docs/6 Semestre/SBC/clips/market/facts.clp")
-(load "C:/Users/Pablo/OneDrive - Universidad de Guadalajara/Documents/CUCEI docs/6 Semestre/SBC/clips/market/facts.clp")
-(load "C:/Users/Pablo/OneDrive - Universidad de Guadalajara/Documents/CUCEI docs/6 Semestre/SBC/clips/market/rules.clp")
-(reset)
-(run)
