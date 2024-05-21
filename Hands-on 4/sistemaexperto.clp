@@ -26,6 +26,7 @@
    (smartphone (marca "OnePlus") (modelo "9 Pro") (color "Rojo") (precio 969))
    (smartphone (marca "Xiaomi") (modelo "Mi 11") (color "Azul") (precio 749))
    (smartphone (marca "Sony") (modelo "Xperia 5") (color "Gris") (precio 849))
+   (smartphone (marca "Sony") (modelo "Xperia 6") (color "Gris") (precio 949))
    (smartphone (marca "LG") (modelo "Wing") (color "Negro") (precio 699))
    (smartphone (marca "Huawei") (modelo "P50 Pro") (color "Dorado") (precio 999))
    (smartphone (marca "Nokia") (modelo "8.3 5G") (color "Azul") (precio 649))
@@ -125,7 +126,7 @@
    (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "Apple" "iPhone 13" 999) (cantidad 10) (metodo-pago "tarjeta"))
    (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "Samsung" "Galaxy S21" 899) (cantidad 10) (metodo-pago "tarjeta"))
    (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "OnePlus" "9 Pro" 969) (cantidad 10) (metodo-pago "tarjeta"))
-   (orden-compra (cliente-id 2) (nombre-cliente "María García") (telefono "555-5678") (producto smartphone "Samsung" "Galaxy S21" 899) (cantidad 2) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 2) (nombre-cliente "Luis Martínez") (telefono "555-5678") (producto smartphone "Samsung" "Galaxy S21" 899) (cantidad 2) (metodo-pago "tarjeta"))
    (orden-compra (cliente-id 3) (nombre-cliente "Luis Martínez") (telefono "555-8765") (producto computadora "Apple" "MacBook Pro" 1299) (cantidad 1) (metodo-pago "contado"))
    (orden-compra (cliente-id 4) (nombre-cliente "Ana López") (telefono "555-4321") (producto accesorio "Sony" "Auriculares" 299) (cantidad 2) (metodo-pago "contado"))
    (orden-compra (cliente-id 5) (nombre-cliente "Pedro González") (telefono "555-6789") (producto smartphone "Xiaomi" "Mi 11" 749) (cantidad 1) (metodo-pago "tarjeta"))
@@ -136,12 +137,138 @@
    (orden-compra (cliente-id 9) (nombre-cliente "Miguel Sánchez") (telefono "555-2345") (producto accesorio "Sony" "Auriculares" 299) (cantidad 15) (metodo-pago "tarjeta"))
    (orden-compra (cliente-id 10) (nombre-cliente "Elena Ramírez") (telefono "555-7890") (producto smartphone "Sony" "Xperia 5" 849) (cantidad 1) (metodo-pago "contado"))
 )
-
+;1
 (defrule mas-de-10-productos
-    (orden-compra (nombre-cliente ?nombre) (cantidad ?cantidad&:(> ?cantidad 10)))
+    (orden-compra (nombre-cliente ?nombre) (cantidad ?cantidad&:(> ?cantidad 9)))
+    (not (compro mas-de-10 ?nombre))
     =>
-    (printout t "El cliente " ?nombre " es un cliente mayorista por comprar más de 10 productos" crlf)
+    (printout t "El cliente " ?nombre " ha comprado más de 10 productos" crlf)
     (assert (compro mas-de-10 ?nombre))
 )
+;2
+(defrule mayorista-mas-de-10-productos
+    (orden-compra (nombre-cliente ?nombre) (cantidad ?cantidad&:(> ?cantidad 9)))
+    (compro mas-de-10 ?nombre)
+    (not (es mayorista ?nombre))
+    =>
+    (printout t "El cliente " ?nombre " es un cliente mayorista por comprar más de 10 productos más de una vez" crlf)
+    (assert (es mayorista ?nombre))
+)
+;3
+(defrule menos-de-10-productos
+    (orden-compra (nombre-cliente ?nombre) (cantidad ?cantidad&:(< ?cantidad 10)))
+    (not (es mayorista ?nombre))
+    =>
+    (printout t "El cliente " ?nombre " ha comprado menos de 10 productos y es un menudista" crlf)
+    (assert (es menudista ?nombre))
+)
+;4
+(defrule clientes-sin-compra
+    (cliente (nombre ?nombre))
+    (not (orden-compra (nombre-cliente ?nombre)))
+    =>
+    (printout t "Aprovecha " ?nombre " y haz tu primer compra con 15% de descuento" crlf)
+    (assert (vale (codigo "PRIMERAVEZ")(titular ?nombre) (descripcion (str-cat "Descuento del 15% en tu primera compra"))))
+)
+;5
+(defrule generar-vale-cashback
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (cliente-id ?id) (metodo-pago "tarjeta"))
+    (tarjeta-credito (titular ?nombre) (banco "BBVA"))
+    (not (vale (codigo "BBVADOBLE")(titular ?nombre) (descripcion "30% en Puntos Dobles en tu próxima compra")))
+    =>
+    (printout t ?nombre " por comprar con TDC BBVA recibe 30% de Puntos Dobles en tu próxima compra" crlf)
+    (assert (vale (codigo "BBVADOBLE")(titular ?nombre) (descripcion "30% en Puntos Dobles en tu próxima compra")))
+)
+;6
+(defrule generar-vale-contado
+    (cliente (nombre ?nombre) (telefono ?telefono))
+    (not (orden-compra (nombre-cliente ?nombre) (metodo-pago "tarjeta")))
+    (orden-compra (nombre-cliente ?nombre) (metodo-pago "contado"))
+    =>
+    (assert (vale (codigo "TDCPRIMERAVEZ")(titular ?nombre) (descripcion "Vale por 10% de descuento en tu próxima compra usando tarjeta")))
+    (printout t ?nombre " usa tu tarjeta y aprovecha 10% de descuento" crlf)
+)
+;7
+(defrule cliente-compro-smartphones
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto smartphone $?))
+    (not (compro smartphone ?nombre))
+    =>
+    (printout t "El cliente " ?nombre "ha comprado smartphone." crlf)
+    (assert (compro smartphone ?nombre))
+)
+;8
+(defrule cliente-compro-smartphones-dos-veces
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto smartphone $?))
+    (compro smartphone ?nombre)
+    =>
+    (printout t "El cliente " ?nombre " ha comprado smartphones al menos dos veces." crlf)
+    (assert (consume smartphones ?nombre))
+)
+;9
+(defrule cliente-compro-computadoras
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto computadora $?))
+    (not (compro computadora ?nombre))
+    =>
+    (printout t "El cliente " ?nombre "ha comprado computadora." crlf)
+    (assert (compro computadora ?nombre))
+)
+;10
+(defrule cliente-compro-computadoras-dos-veces
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto computadora $?))
+    (compro computadora ?nombre)
+    =>
+    (printout t "El cliente " ?nombre " ha comprado computadoras al menos dos veces." crlf)
+    (assert (consume computadoras ?nombre))
+)
+;11
+(defrule cliente-compro-accesorios
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto accesorio $?))
+    (not (compro accesorio ?nombre))
+    =>
+    (printout t "El cliente " ?nombre "ha comprado accesorio." crlf)
+    (assert (compro accesorio ?nombre))
+)
+;12
+(defrule cliente-compro-accesorios-dos-veces
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (producto accesorio $?))
+    (compro accesorio ?nombre)
+    =>
+    (printout t "El cliente " ?nombre " ha comprado accesorios al menos dos veces." crlf)
+    (assert (consume accesorios ?nombre))
+)
+;13
+(defrule oferta-mayorista
+    (es mayorista ?nombre)
+    =>
+    (printout t ?nombre "eres mayorista y recibiras 20% de descuento en tu siguiente compra de por lo menos 10 productos" crlf)
+    (assert (vale (codigo "MAYORISTA")(titular ?nombre) (descripcion "20% de descuento en tu siguiente compra con cantidad minima de 10")))
+)
+;14
+(defrule asignar-vale-mastercard
+   (tarjeta-credito (titular ?nombre) (grupo "Mastercard"))
+   =>
+   (printout t ?nombre "Utiliza tu TDC Mastercard para comprar" crlf)
+   (assert (vale (codigo "MASTERCARD")(titular ?nombre) (descripcion "Usa tu TDC MasterCard y recibe 12 MSI")))
+)
+;15
+(defrule oferta-mastercard-smartphone
+   (tarjeta-credito (titular ?nombre) (grupo "Mastercard"))
+   (orden-compra (nombre-cliente ?nombre) (producto accesorio $?))
+   =>
+   (printout t ?nombre " por comprar un accesorio puedes usar tu TDC Mastercard para comprar otro con 10% cashback" crlf)
+   (assert (vale (codigo "MASTERCARD")(titular ?nombre) (descripcion "Usa tu TDC MasterCard y recibe 10% cashback en accesorios")))
+)
+;16
 
+;17
+;18
+;19
+;20
 
