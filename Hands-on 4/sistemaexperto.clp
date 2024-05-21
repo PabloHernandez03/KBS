@@ -266,9 +266,43 @@
    (assert (vale (codigo "MASTERCARD")(titular ?nombre) (descripcion "Usa tu TDC MasterCard y recibe 10% cashback en accesorios")))
 )
 ;16
-
+(defrule america-express
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (cliente-id ?id) (metodo-pago "tarjeta"))
+    (tarjeta-credito (titular ?nombre) (banco "American Express"))
+    =>
+    (printout t ?nombre " por comprar con TDC American Express recibe 24 MSI en tu próxima compra" crlf)
+    (assert (vale (codigo "AE24MSI")(titular ?nombre) (descripcion "24 MSI con American Express en próxima compra")))
+)
 ;17
+(defrule liverpool
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (cliente-id ?id) (metodo-pago "tarjeta"))
+    (tarjeta-credito (titular ?nombre) (banco "Liverpool"))
+    =>
+    (printout t ?nombre " por comprar con TDC Liverpool tu primer pago será en 3 meses en tu próxima compra" crlf)
+    (assert (vale (codigo "LIVERPOOL")(titular ?nombre) (descripcion "PAGO INICIAL EN 3 MESES")))
+)
 ;18
+(defrule hsbc
+    (cliente (nombre ?nombre))
+    (orden-compra (nombre-cliente ?nombre) (cliente-id ?id) (metodo-pago "tarjeta"))
+    (tarjeta-credito (titular ?nombre) (banco "HSBC"))
+    =>
+    (printout t ?nombre " por comprar con TDC HSCB tu próxima compra tiene 15% de cashback" crlf)
+    (assert (vale (codigo "HSCBCASHBACK")(titular ?nombre) (descripcion "Recibe 15% de Cashback usando TDC HSBC")))
+)
 ;19
+(defrule oferta-menudisat
+    (es menudista ?nombre)
+    =>
+    (printout t ?nombre "eres un vendedor casual y te daremos un vale de 10% de descuento si compras más de 5 unidades de un producto" crlf)
+    (assert (vale (codigo "CASUAL")(titular ?nombre) (descripcion "10% de descuento en tu siguiente compra con cantidad minima de 5")))
+)
 ;20
+(defrule oferta-compra-mayor-900
+   (orden-compra (nombre-cliente ?nombre) (producto ?tipo ?marca ?modelo ?precio&:(> ?precio 899)))
+   =>
+   (printout t "Tu envio sera gratis por la compra mayor a 899" crlf)
+)
 
