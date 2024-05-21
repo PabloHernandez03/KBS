@@ -112,4 +112,36 @@
    (vale (codigo "HOTSALE") (titular "Ana López") (descripcion "30% Descuento en Productos HOT-SALE"))
 )
 
+(deftemplate orden-compra
+   (slot cliente-id)
+   (slot nombre-cliente)
+   (slot telefono)
+   (multislot producto)
+   (slot cantidad)
+   (slot metodo-pago)
+)
+
+(deffacts ordenes-compra
+   (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "Apple" "iPhone 13" 999) (cantidad 10) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "Samsung" "Galaxy S21" 899) (cantidad 10) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 1) (nombre-cliente "Juan Pérez") (telefono "555-1234") (producto smartphone "OnePlus" "9 Pro" 969) (cantidad 10) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 2) (nombre-cliente "María García") (telefono "555-5678") (producto smartphone "Samsung" "Galaxy S21" 899) (cantidad 2) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 3) (nombre-cliente "Luis Martínez") (telefono "555-8765") (producto computadora "Apple" "MacBook Pro" 1299) (cantidad 1) (metodo-pago "contado"))
+   (orden-compra (cliente-id 4) (nombre-cliente "Ana López") (telefono "555-4321") (producto accesorio "Sony" "Auriculares" 299) (cantidad 2) (metodo-pago "contado"))
+   (orden-compra (cliente-id 5) (nombre-cliente "Pedro González") (telefono "555-6789") (producto smartphone "Xiaomi" "Mi 11" 749) (cantidad 1) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 6) (nombre-cliente "Laura Rodríguez") (telefono "555-9876") (producto computadora "Dell" "XPS 13" 999) (cantidad 1) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 7) (nombre-cliente "Carlos Hernández") (telefono "555-3456") (producto accesorio "Razer" "Ratón" 79) (cantidad 1) (metodo-pago "contado"))
+   (orden-compra (cliente-id 8) (nombre-cliente "Lucía Fernández") (telefono "555-6543") (producto smartphone "OnePlus" "9 Pro" 969) (cantidad 1) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 9) (nombre-cliente "Miguel Sánchez") (telefono "555-2345") (producto accesorio "Logitech" "Teclado" 99) (cantidad 20) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 9) (nombre-cliente "Miguel Sánchez") (telefono "555-2345") (producto accesorio "Sony" "Auriculares" 299) (cantidad 15) (metodo-pago "tarjeta"))
+   (orden-compra (cliente-id 10) (nombre-cliente "Elena Ramírez") (telefono "555-7890") (producto smartphone "Sony" "Xperia 5" 849) (cantidad 1) (metodo-pago "contado"))
+)
+
+(defrule mas-de-10-productos
+    (orden-compra (nombre-cliente ?nombre) (cantidad ?cantidad&:(> ?cantidad 10)))
+    =>
+    (printout t "El cliente " ?nombre " es un cliente mayorista por comprar más de 10 productos" crlf)
+    (assert (compro mas-de-10 ?nombre))
+)
+
 
